@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem.UI;
+#endif
 
 /// <summary>
 /// Monta a cena de vitória automaticamente.
@@ -10,6 +14,8 @@ public class VictoryScreen : MonoBehaviour
 {
     private void Start()
     {
+        EnsureEventSystem();
+
         // Camera
         Camera cam = Camera.main;
         if (cam == null)
@@ -45,6 +51,24 @@ public class VictoryScreen : MonoBehaviour
         {
             GameManager.Instance?.RestartGame();
         });
+
+        CreateButton(canvasGo, "MAIN MENU", new Vector2(0, -200), () =>
+        {
+            GameManager.Instance?.GoToMenu();
+        });
+    }
+
+    private void EnsureEventSystem()
+    {
+        if (FindFirstObjectByType<EventSystem>() != null) return;
+
+        GameObject es = new GameObject("EventSystem");
+        es.AddComponent<EventSystem>();
+#if ENABLE_INPUT_SYSTEM
+        es.AddComponent<InputSystemUIInputModule>();
+#else
+        es.AddComponent<StandaloneInputModule>();
+#endif
     }
 
     private void CreateText(GameObject parent, string text, int size, Color color, Vector2 anchoredPos)

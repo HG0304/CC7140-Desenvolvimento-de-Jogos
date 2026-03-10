@@ -9,6 +9,9 @@ public class GameManager : MonoBehaviour
     public int lives = 3;
     public bool gameOver = false;
 
+    public GameObject PlayerBulletPrefab { get; private set; }
+    public GameObject EnemyBulletPrefab { get; private set; }
+
     private void Awake()
     {
         if (Instance == null)
@@ -56,11 +59,31 @@ public class GameManager : MonoBehaviour
     private void LoadVictory() => SceneManager.LoadScene("Victory");
     private void LoadDefeat() => SceneManager.LoadScene("Defeat");
 
+    public void RegisterBulletPrefabs(GameObject playerBullet, GameObject enemyBullet)
+    {
+        if (PlayerBulletPrefab == null && playerBullet != null)
+            PlayerBulletPrefab = playerBullet;
+
+        if (EnemyBulletPrefab == null && enemyBullet != null)
+            EnemyBulletPrefab = enemyBullet;
+    }
+
     public void RestartGame()
     {
         score = 0;
         lives = 3;
         gameOver = false;
         SceneManager.LoadScene("SampleScene");
+    }
+
+    public void StartNewGame()
+    {
+        RestartGame();
+    }
+
+    public void GoToMenu()
+    {
+        gameOver = false;
+        SceneManager.LoadScene("Start");
     }
 }

@@ -9,16 +9,17 @@ public class EnemyFormation : MonoBehaviour
     private int rows = 5;
     private float spacingX = 1.3f;
     private float spacingY = 1.1f;
-    private float baseSpeed = 1.5f;
-    private float speedIncreasePerKill = 0.04f;
+    private float baseSpeed = 1.15f;
+    private float speedIncreasePerKill = 0.02f;
     private float edgeMargin = 7.2f;
-    private float stepDown = 0.5f;
+    private float stepDown = 0.28f;
 
     private float currentSpeed;
     private int direction = 1;
     private bool needsStep = false;
     private float stepTimer = 0f;
     private const float stepDuration = 0.18f;
+    private bool victoryTriggered = false;
 
     private List<Enemy> enemies = new List<Enemy>();
     private int totalEnemies;
@@ -84,6 +85,13 @@ public class EnemyFormation : MonoBehaviour
     {
         if (GameManager.Instance == null || GameManager.Instance.gameOver) return;
 
+        if (!victoryTriggered && GetAliveEnemiesCount() == 0)
+        {
+            victoryTriggered = true;
+            GameManager.Instance?.TriggerVictory();
+            return;
+        }
+
         if (needsStep)
         {
             stepTimer += Time.deltaTime;
@@ -114,7 +122,18 @@ public class EnemyFormation : MonoBehaviour
         int killed = totalEnemies - enemies.Count;
         currentSpeed = baseSpeed + speedIncreasePerKill * killed;
 
-        if (enemies.Count == 0)
+        if (!victoryTriggered && GetAliveEnemiesCount() == 0)
+        {
+            victoryTriggered = true;
             GameManager.Instance?.TriggerVictory();
+        }
+    }
+
+    private int GetAliveEnemiesCount()
+    {
+        enemies.RemoveAll(e => e == null);
+        int byList = enemies.Count;
+        int byHierarchy = GetComponentsInChildren<Enemy>(false).Length;
+        return Mathf.Max(byList, byHierarchy);
     }
 }

@@ -1,10 +1,13 @@
 using UnityEngine;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
 {
     public float speed = 5f;
-    public float fireRate = 0.4f;
+    public float fireRate = 0.22f;
     public float minX = -8.5f;
     public float maxX = 8.5f;
 
@@ -33,7 +36,18 @@ public class Player : MonoBehaviour
 
     private void HandleMovement()
     {
+    #if ENABLE_INPUT_SYSTEM
+        float input = 0f;
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.leftArrowKey.isPressed || Keyboard.current.aKey.isPressed)
+            input -= 1f;
+            if (Keyboard.current.rightArrowKey.isPressed || Keyboard.current.dKey.isPressed)
+            input += 1f;
+        }
+    #else
         float input = Input.GetAxisRaw("Horizontal");
+    #endif
         Vector2 newPos = rb.position + Vector2.right * input * speed * Time.deltaTime;
         newPos.x = Mathf.Clamp(newPos.x, minX, maxX);
         rb.MovePosition(newPos);
@@ -41,7 +55,13 @@ public class Player : MonoBehaviour
 
     private void HandleShooting()
     {
-        if (Input.GetKey(KeyCode.Space) && Time.time >= nextFireTime && bulletPrefab != null)
+    #if ENABLE_INPUT_SYSTEM
+        bool shootPressed = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
+    #else
+        bool shootPressed = Input.GetKey(KeyCode.Space);
+    #endif
+
+        if (shootPressed && Time.time >= nextFireTime && bulletPrefab != null)
         {
             nextFireTime = Time.time + fireRate;
             Vector3 fp = transform.position + Vector3.up * 0.5f;

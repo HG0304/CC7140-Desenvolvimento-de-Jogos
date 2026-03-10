@@ -18,16 +18,27 @@ public class PlayerBullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Enemy") || other.CompareTag("MotherShip"))
+        if (other.CompareTag("Enemy"))
         {
-            // A pontuação/morte é tratada no Enemy/MotherShip via OnTriggerEnter2D deles
+            Enemy enemy = other.GetComponent<Enemy>();
+            if (enemy != null) enemy.Die();
             Destroy(gameObject);
+            return;
         }
+
+        if (other.CompareTag("MotherShip"))
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         if (other.CompareTag("EnemyBullet"))
         {
             Destroy(other.gameObject);
             Destroy(gameObject);
+            return;
         }
+
         if (other.CompareTag("Border"))
         {
             Destroy(gameObject);

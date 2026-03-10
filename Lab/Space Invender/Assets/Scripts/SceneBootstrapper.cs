@@ -20,9 +20,9 @@ public class SceneBootstrapper : MonoBehaviour
     private void Start()
     {
         SetupPhysics();
+        BuildGameManager();
         BuildPrefabs();
         BuildCamera();
-        BuildGameManager();
         BuildUI();
         BuildPlayer();
         BuildEnemyFormation();
@@ -40,6 +40,14 @@ public class SceneBootstrapper : MonoBehaviour
     // ─── Prefabs ──────────────────────────────────────────────────────────────
     private void BuildPrefabs()
     {
+        if (GameManager.Instance != null)
+        {
+            playerBulletPrefab = GameManager.Instance.PlayerBulletPrefab;
+            enemyBulletPrefab = GameManager.Instance.EnemyBulletPrefab;
+            if (playerBulletPrefab != null && enemyBulletPrefab != null)
+                return;
+        }
+
         // Tiro do jogador (sobe)
         playerBulletPrefab = new GameObject("PlayerBullet");
         playerBulletPrefab.tag = "PlayerBullet";
@@ -73,6 +81,8 @@ public class SceneBootstrapper : MonoBehaviour
         // Manter como template fora da cena principal
         DontDestroyOnLoad(enemyBulletPrefab);
         enemyBulletPrefab.SetActive(false);
+
+        GameManager.Instance?.RegisterBulletPrefabs(playerBulletPrefab, enemyBulletPrefab);
     }
 
     // ─── Camera ───────────────────────────────────────────────────────────────
